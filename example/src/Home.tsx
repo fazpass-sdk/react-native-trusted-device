@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Image } from 'react-native';
 import { View, SafeAreaView } from 'react-native';
-import { closeStreamNotification, Fazpass, streamNotification } from 'react-native-trusted-device';
+import { closeStreamNotification, crossDeviceConfirm, initialize, initializeCrossDeviceNonView, streamNotification } from 'react-native-trusted-device';
 import { styles } from './Style';
 import * as material from "react-native-paper";
 // import { HStack, Banner } from "@react-native-material/core";
@@ -11,19 +11,18 @@ export default function Home({navigation}) {
   const [isNotificated, setNotificated] = React.useState(false)
   const [notificationMessage, setNotificationMessage] = React.useState('')
   React.useEffect(() => {
-    Fazpass.initialize("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjo0fQ.WEV3bCizw9U_hxRC6DxHOzZthuJXRE8ziI3b6bHUpEI",
-    1,(err:string)=>{
+    initialize("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjo0fQ.WEV3bCizw9U_hxRC6DxHOzZthuJXRE8ziI3b6bHUpEI", (err:string)=>{
       console.log(err)
     })
     // Fazpass.initializeCrossDevice(false)
    
-    Fazpass.initializeCrossDeviceNonView(false, (onNotif:string)=>{
-      setNotificated(true)
-      let a = onNotif.split(',')
-      console.log(a)
-      setNotificationMessage(`There was an intruder that try to login \n from device ${a[1]}`)
-    }, (onRunning:string)=>{
-      console.log(onRunning)
+    initializeCrossDeviceNonView(false, (device:string)=>{
+    setNotificated(true)
+    let a = device.split(',')
+    console.log(a)
+    setNotificationMessage(`There was an intruder that try to login \n from device ${a[1]}`)
+    }, (device:string)=>{
+      console.log(device)
     })
     streamNotification((device:string)=>{
       setNotificated(true)
@@ -44,12 +43,12 @@ export default function Home({navigation}) {
         actions={[
           {label:'That\'s Me',
             onPress:()=>{
-              Fazpass.crossDeviceConfirm()
+              crossDeviceConfirm(true)
               setNotificated(false)
             }
         },{label:'Not Me',
           onPress:()=>{
-              Fazpass.crossDeviceDecline()
+              crossDeviceConfirm(false)
               setNotificated(false)
           }}
         ]}
@@ -65,17 +64,6 @@ export default function Home({navigation}) {
           />
         )}
         >
-
-          {/* <SafeAreaView>
-              <View>
-                  <material.Text style={styles.title}>
-                    Alert
-                  </material.Text>
-                  <material.Text style={styles.text_banner}>
-                    {notificationMessage}
-                  </material.Text>
-              </View>
-          </SafeAreaView> */}
 
         {notificationMessage}
         </material.Banner>

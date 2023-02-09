@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Image, TextInput } from 'react-native';
 import ProgressDialog from 'react-native-progress-dialog';
 import { View, Text, SafeAreaView, Button, ToastAndroid } from 'react-native';
-import { closeStreamOtp, Fazpass, requestPermission, streamOtp } from 'react-native-trusted-device';
+import { closeStreamOtp, heValidation, requestOtpByPhone, requestPermission, streamOtp, validateOtp } from 'react-native-trusted-device';
 import { styles } from './Style';
 
 export default function Otp(){
@@ -67,7 +67,7 @@ export default function Otp(){
               color="#000000"
               onPress={() => {
                 setLoading(true)
-                Fazpass.validateOtp(otpId, otp,
+                validateOtp(otpId, otp,
                   (status:boolean)=>{
                     setLoading(false)
                     setVerifyStatus("Verification status is: "+ status)
@@ -94,7 +94,7 @@ export default function Otp(){
               color="#49beff"
               onPress={() => {
                 setMessage('Just wait, Fazpass will send your OTP.')
-                Fazpass.requestOtpByPhone(phone,
+                requestOtpByPhone(phone,
                   "1e1de010-71b2-47d6-a037-254182ff3696",
                    (_response:any)=>{
                      setOtpId(_response.id)
@@ -114,7 +114,7 @@ export default function Otp(){
             onPress={() =>
              {
               setMessage('Just wait, Fazpass will send your OTP.')
-              Fazpass.requestOtpByPhone(phone,
+              requestOtpByPhone(phone,
               "595ea55e-95d2-4ec4-969e-910de41585a0",
                (_response:string)=>{console.log(_response)},
                (_err:string)=>{ToastAndroid.show(_err, ToastAndroid.SHORT)})
@@ -129,7 +129,7 @@ export default function Otp(){
               onPress={() =>
               {
                 setMessage('Just wait, Fazpass will send your OTP.')
-                Fazpass.requestOtpByPhone(phone,
+                requestOtpByPhone(phone,
                 "c73fbaac-cce8-4cad-af0e-afd040a8f7e2",
                  (_response:any)=>{setOtpId(_response.id)},
                  (_err:string)=>{
@@ -146,7 +146,7 @@ export default function Otp(){
               color="#be4d25"
               onPress={() => {
                 setLoading(true)
-                Fazpass.heValidation(phone, 
+                heValidation(phone, 
                 "6cb0b024-9721-4243-9010-fd9e386157ec",
                 (status:boolean)=>{
                   setLoading(false)

@@ -12,7 +12,7 @@ npm install react-native-trusted-device
 First you should call this code in your root view. It will save that credential in then local storage of the device.
 
 ```js
-import { Fazpass } from 'react-native-trusted-device';
+import { initialize } from 'react-native-trusted-device';
 
 // ...
 

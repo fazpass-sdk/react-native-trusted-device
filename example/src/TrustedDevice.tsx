@@ -3,7 +3,7 @@ import { Button, Image, Text, TextInput, ToastAndroid } from 'react-native';
 import ProgressDialog from 'react-native-progress-dialog';
 import { View, SafeAreaView } from 'react-native';
 import { styles } from './Style';
-import { Fazpass } from 'react-native-trusted-device';
+import { checkDevice, enrollDeviceByFinger, Fazpass, removeDevice, validateCrossDevice, validateUser } from 'react-native-trusted-device';
 
 export default function TrustedDevice({navigation}) {
   const Separator = () => <View style={styles.separator} />;
@@ -43,7 +43,7 @@ export default function TrustedDevice({navigation}) {
               color="#49beff"
               onPress={() => {
                 setLoading(true)
-                Fazpass.checkDevice(phone, '',
+                checkDevice(phone, '',
                 (status:any)=>{
                   setLoading(false)
                   setCheckStatus(`Status cross device : ${status.cd} \n Status trusted device : ${status.td}`)
@@ -63,7 +63,7 @@ export default function TrustedDevice({navigation}) {
               color="#49beff"
               onPress={() => {
                 setLoading(true)
-                Fazpass.removeDevice('123456',
+                removeDevice('123456',
                 (status:any)=>{
                   setLoading(false)
                   ToastAndroid.show(`Remove status ${status}`, 1)
@@ -83,7 +83,7 @@ export default function TrustedDevice({navigation}) {
               title="Cross Device"
               color="#49beff"
               onPress={() => {
-                Fazpass.validateCrossDevice(60, (response:any)=>{
+                validateCrossDevice(60, (response:any)=>{
                   ToastAndroid.show(`${response.device} make a response ${response.status}`, 2)
                 },
                 (err:string)=>{
@@ -100,7 +100,7 @@ export default function TrustedDevice({navigation}) {
               color="#49beff"
               onPress={() => {
                 // setLoading(true)
-                Fazpass.enrollDeviceByFinger(user, "123456", (status:boolean)=>{
+                enrollDeviceByFinger(user, "123456", (status:boolean)=>{
                   ToastAndroid.show(`Enroll status ${status}`,1)
                 },
                 (err:string)=>{
@@ -117,7 +117,7 @@ export default function TrustedDevice({navigation}) {
               color="#49beff"
               onPress={() => {
                 setLoading(true)
-                Fazpass.validateUser("123456", (response:any)=>{
+                validateUser("123456", (response:any)=>{
                   setLoading(false)
                   setValidateStatus(`Your confidence rate is : ${response.summary}`)
                 }, (err:string)=>{

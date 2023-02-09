@@ -1,4 +1,5 @@
 import { EmitterSubscription, NativeEventEmitter, NativeModules, Permission, PermissionsAndroid, Platform } from 'react-native';
+import type { Double } from 'react-native/Libraries/Types/CodegenTypes';
 
 
 const LINKING_ERROR =
@@ -25,6 +26,8 @@ export const Fazpass = NativeModules.TrustedDevice
 const tdEmitter = new NativeEventEmitter(Fazpass)
 var notificationListener:EmitterSubscription;
 var otpListener:EmitterSubscription;
+
+
 
 export async function requestPermission(){
   let permissions: Array<Permission> =
@@ -60,4 +63,124 @@ export function closeStreamOtp(){
   if(otpListener!=null){
     otpListener.remove()
   }
+}
+
+export function initialize(merchant_key:string, callback:Function){
+  Fazpass.initialize(merchant_key,
+  1,(err:string)=>{
+    callback(err)
+  })
+}
+
+export function initializeCrossDeviceNonView(isRequiredPin:boolean, callbackBg:Function, callbackFg:Function){
+  Fazpass.initializeCrossDeviceNonView(isRequiredPin, (onNotif:string)=>{
+    callbackBg(onNotif)
+  }, (onRunning:string)=>{
+    callbackFg(onRunning)
+  })
+}
+
+export function initializeCrossDevice(isRequiredPin:boolean){
+  Fazpass.initializeCrossDevice(isRequiredPin)
+}
+
+export function heValidation(phone:string, gateway:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.heValidation(phone, 
+    gateway,
+    (status:boolean)=>{
+     callbackStatus(status)
+      },
+      (err:string)=>{
+        callbackErr(err)
+      })
+}
+
+export function requestOtpByPhone(phone:string, gateway:string, callbackResponse:Function, callbackErr:Function){
+  Fazpass.requestOtpByPhone(phone,gateway,
+     (_response:any)=>{
+      callbackResponse(_response)
+     },
+     (_err:string)=>{
+       callbackErr(_err)
+     })
+}
+
+export function validateOtp(otpId:string, otp:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.validateOtp(otpId, otp,
+    (status:boolean)=>{
+      callbackStatus(status)
+    },
+    (err:string)=>{
+      callbackErr(err)
+    })
+}
+
+export function checkDevice(phone:string, email:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.checkDevice(phone, email,
+  (status:any)=>{
+    callbackStatus(status)
+  },
+  (err:string)=>{
+    callbackErr(err)
+  })
+}
+
+export function removeDevice(pin:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.removeDevice(pin,
+    (status:any)=>{
+      callbackStatus(status)
+    },
+    (err:string)=>{
+      callbackErr(err)
+    })
+}
+
+export function validateCrossDevice(duration:Double, callbackResponse:Function, callbackErr:Function){
+  Fazpass.validateCrossDevice(duration, (response:any)=>{
+    callbackResponse(response)
+  },
+  (err:string)=>{
+    callbackErr(err)
+  })
+}
+
+export function enrollDeviceByFinger(user:any, pin:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.enrollDeviceByFinger(user, pin, (status:boolean)=>{
+    callbackStatus(status)
+  },
+  (err:string)=>{
+    callbackErr(err)
+  })
+}
+
+export function enrollDeviceByPin(user:any, pin:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.enrollDeviceByPin(user, pin, (status:boolean)=>{
+    callbackStatus(status)
+  },
+  (err:string)=>{
+    callbackErr(err)
+  })
+}
+
+export function validateUser(pin:string, callbackStatus:Function, callbackErr:Function){
+  Fazpass.validateUser(pin, (response:any)=>{
+    callbackStatus(response)
+  }, (err:string)=>{
+   callbackErr(err)
+  })
+}
+
+export function crossDeviceConfirmWithPin(pin:string, callbackStatus:Function){
+  Fazpass.crossDeviceConfirmWithPin(pin, (status:boolean)=>{
+    callbackStatus(status)
+  })
+}
+
+export function crossDeviceConfirm(allow:boolean){
+  if(allow){
+    Fazpass.crossDeviceConfirm()
+  }else{
+    Fazpass.crossDeviceDecline()
+  }
+  
 }
