@@ -199,7 +199,16 @@ React.useEffect(() => {
 ```
 <i>Note: you need to call this method in the first view on your app</i>
 
-
+### Create release
+We use native library so make sure you disable shrinkResource in gradle
+```
+  buildTypes {
+    release {
+      minifyEnabled false
+      shrinkResources false
+    }
+  }
+```
 ## License
 
 MIT
