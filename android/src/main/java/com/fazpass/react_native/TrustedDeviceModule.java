@@ -352,7 +352,7 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void crossDeviceDecline(){
       if(_bundle!=null){
-        FazpassCd.onConfirm(getCurrentActivity(), _bundle);
+        FazpassCd.onDecline(getCurrentActivity(), _bundle);
       }else{
         FazpassCd.onDecline(getCurrentActivity());
       }
