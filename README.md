@@ -199,6 +199,20 @@ React.useEffect(() => {
 ```
 <i>Note: you need to call this method in the first view on your app</i>
 
+### Stream error
+We use bridging between native code and react so if you want to know what error that happen you can listen with call function
+
+```TypeScript
+streamNativeError((data)=>{
+  // do some thing
+})
+```
+and dont forget to close it when component willunmount
+```TypeScript
+closeStreamNativeError()
+```
+
+
 ### Create release
 We use native library so make sure you disable shrinkResource in gradle
 ```

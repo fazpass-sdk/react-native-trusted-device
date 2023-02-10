@@ -59,6 +59,13 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
       .emit(eventName, params);
   }
+
+  private void sendErrorEvent(ReactContext reactContext,
+                         @Nullable String message) {
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit("error", message);
+  }
     @ReactMethod
     public void addListener(String eventName) {}
 
@@ -95,160 +102,181 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void requestOtpByEmail(String email, String gateway, Callback s, Callback e){
-      Fazpass.requestOtpByEmail(mReactContext, email, gateway, new Otp.Request() {
-        @Override
-        public void onComplete(OtpResponse response) {
-          s.invoke(response);
-        }
+      try{
+        Fazpass.requestOtpByEmail(mReactContext, email, gateway, new Otp.Request() {
+          @Override
+          public void onComplete(OtpResponse response) {
+            s.invoke(response);
+          }
 
-        @Override
-        public void onIncomingMessage(String otp) {
+          @Override
+          public void onIncomingMessage(String otp) {
 
-        }
+          }
 
-        @Override
-        public void onError(Throwable err) {
-          e.invoke(err.getMessage());
-        }
-      });
+          @Override
+          public void onError(Throwable err) {
+            e.invoke(err.getMessage());
+          }
+        });
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
+      }
+
     }
 
     @ReactMethod
     public void requestOtpByPhone(String phone, String gateway, Callback s, Callback e){
-        Log.d("FAZPASS","Requesting");
-       Fazpass.requestOtpByPhone(mReactContext, phone, gateway, new Otp.Request() {
-         @Override
-         public void onComplete(OtpResponse response) {
-           Log.d("FAZPASS",response.getOtpId());
-           WritableMap map = new WritableNativeMap();
-           map.putString("id",response.getOtpId() );
-           map.putBoolean("status", response.isStatus());
-           s.invoke(map);
-         }
-
-         @Override
-         public void onIncomingMessage(String otp) {
-           Log.d("FAZPASS", otp);
-           WritableMap map = new WritableNativeMap();
-           map.putString("otp", otp);
-//           sendEvent(mReactContext, "otp", map);
-           mReactContext
-             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-             .emit("otp-listener", map);
-         }
-
-         @Override
-         public void onError(Throwable err) {
-           Log.e("FAZPASS",err.getMessage());
-           e.invoke(err.getMessage());
-         }
-       });
+       try{
+         Fazpass.requestOtpByPhone(mReactContext, phone, gateway, new Otp.Request() {
+           @Override
+           public void onComplete(OtpResponse response) {
+             WritableMap map = new WritableNativeMap();
+             map.putString("id",response.getOtpId() );
+             map.putBoolean("status", response.isStatus());
+             s.invoke(map);
+           }
+           @Override
+           public void onIncomingMessage(String otp) {
+             WritableMap map = new WritableNativeMap();
+             map.putString("otp", otp);
+             mReactContext
+               .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+               .emit("otp-listener", map);
+           }
+           @Override
+           public void onError(Throwable err) {
+             e.invoke(err.getMessage());
+           }
+         });
+       }catch (Exception ex){
+         sendErrorEvent(mReactContext, ex.getMessage());
+       }
     }
 
     @ReactMethod
     public void validateOtp(String id, String otp, Callback s, Callback e){
-      Log.e("Method", id+"--"+otp);
-      Fazpass.validateOtp(mReactContext, id, otp, new Otp.Validate() {
-        @Override
-        public void onComplete(boolean status) {
-          s.invoke(status);
-        }
+      try{
+        Fazpass.validateOtp(mReactContext, id, otp, new Otp.Validate() {
+          @Override
+          public void onComplete(boolean status) {
+            s.invoke(status);
+          }
 
-        @Override
-        public void onError(Throwable err) {
-          Log.e("FAZPASS",err.getMessage());
-          e.invoke(err.getMessage());
-        }
-      });
+          @Override
+          public void onError(Throwable err) {
+            Log.e("FAZPASS",err.getMessage());
+            e.invoke(err.getMessage());
+          }
+        });
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
+      }
     }
 
     @ReactMethod
     public void heValidation(String phone, String gateway, Callback s, Callback e){
-      Fazpass.heValidation(mReactContext, phone, gateway, new HeaderEnrichment.Request() {
-        @Override
-        public void onComplete(boolean status) {
-          s.invoke(status);
-        }
+      try{
+        Fazpass.heValidation(mReactContext, phone, gateway, new HeaderEnrichment.Request() {
+          @Override
+          public void onComplete(boolean status) {
+            s.invoke(status);
+          }
 
-        @Override
-        public void onError(Throwable err) {
-          e.invoke(err.getMessage());
-        }
-      });
+          @Override
+          public void onError(Throwable err) {
+            e.invoke(err.getMessage());
+          }
+        });
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
+      }
     }
 
     @ReactMethod
     public void checkDevice(String phone, String email,  Callback s, Callback e){
-      Fazpass.check(mReactContext, email, phone, new TrustedDeviceListener<FazpassTd>() {
-        @Override
-        public void onSuccess(FazpassTd o) {
-          WritableMap map = new WritableNativeMap();
-          ftd = o;
-          map.putBoolean("cd", o.cd_status.equals(CROSS_DEVICE.AVAILABLE));
-          map.putBoolean("td", o.td_status.equals(TRUSTED_DEVICE.TRUSTED));
-          s.invoke(map);
+        try{
+          Fazpass.check(mReactContext, email, phone, new TrustedDeviceListener<FazpassTd>() {
+            @Override
+            public void onSuccess(FazpassTd o) {
+              WritableMap map = new WritableNativeMap();
+              ftd = o;
+              map.putBoolean("cd", o.cd_status.equals(CROSS_DEVICE.AVAILABLE));
+              map.putBoolean("td", o.td_status.equals(TRUSTED_DEVICE.TRUSTED));
+              s.invoke(map);
+            }
+            @Override
+            public void onFailure(Throwable err) {
+              e.invoke(err.getMessage());
+            }
+          });
+        }catch (Exception ex){
+          sendErrorEvent(mReactContext, ex.getMessage());
         }
-
-        @Override
-        public void onFailure(Throwable err) {
-          e.invoke(err.getMessage());
-        }
-      });
     }
 
     @ReactMethod
     public void enrollDeviceByPin(ReadableMap map, String pin, Callback s, Callback e){
-      if(ftd==null){
-        e.invoke(new String("Method check have not been call"));
-      }else{
-        User u = new User(map.getString("email"),map.getString("phone"),map.getString("name"),map.getString("id_card"),map.getString("address"));
-        ftd.enrollDeviceByPin(mReactContext, u, pin, new TrustedDeviceListener<EnrollStatus>() {
-          @Override
-          public void onSuccess(EnrollStatus o) {
-            WritableMap map = new WritableNativeMap();
-            map.putBoolean("status", o.getStatus());
-            map.putString("message", o.getMessage());
-            s.invoke();
-          }
+      try{
+        if(ftd==null){
+          e.invoke(new String("Method check have not been call"));
+        }else{
+          User u = new User(map.getString("email"),map.getString("phone"),map.getString("name"),map.getString("id_card"),map.getString("address"));
+          ftd.enrollDeviceByPin(mReactContext, u, pin, new TrustedDeviceListener<EnrollStatus>() {
+            @Override
+            public void onSuccess(EnrollStatus o) {
+              WritableMap map = new WritableNativeMap();
+              map.putBoolean("status", o.getStatus());
+              map.putString("message", o.getMessage());
+              s.invoke();
+            }
 
-          @Override
-          public void onFailure(Throwable err) {
-            e.invoke(err.getMessage());
-          }
-        });
+            @Override
+            public void onFailure(Throwable err) {
+              e.invoke(err.getMessage());
+            }
+          });
+        }
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
       }
 
     }
 
     @ReactMethod
     public void enrollDeviceByFinger(ReadableMap map, String pin, Callback s, Callback e){
-      if(ftd==null){
-        e.invoke("Method check have not been call");
-      }else{
-        UiThreadUtil.runOnUiThread(() -> {
-          User u = new User(map.getString("email"),map.getString("phone"),map.getString("name"),map.getString("id_card"),map.getString("address"));
-          ftd.enrollDeviceByFinger(getCurrentActivity(), u, pin, new TrustedDeviceListener<Boolean>() {
-            @Override
-            public void onSuccess(Boolean o) {
-              s.invoke(o);
-            }
+     try{
+       if(ftd==null){
+         e.invoke("Method check have not been call");
+       }else{
+         UiThreadUtil.runOnUiThread(() -> {
+           User u = new User(map.getString("email"),map.getString("phone"),map.getString("name"),map.getString("id_card"),map.getString("address"));
+           ftd.enrollDeviceByFinger(getCurrentActivity(), u, pin, new TrustedDeviceListener<Boolean>() {
+             @Override
+             public void onSuccess(Boolean o) {
+               s.invoke(o);
+             }
 
-            @Override
-            public void onFailure(Throwable err) {
+             @Override
+             public void onFailure(Throwable err) {
 
-            }
-          });
-        });
-      }
+             }
+           });
+         });
+       }
+     }catch (Exception ex){
+       sendErrorEvent(mReactContext, ex.getMessage());
+     }
     }
 
     @ReactMethod
     public void validateUser(String pin, Callback s, Callback e){
-      if(ftd==null){
-        e.invoke("Method check have not been call");
-      }else{
-        WritableMap map = new WritableNativeMap();
-        UiThreadUtil.runOnUiThread(() -> {
+      try{
+        if(ftd==null){
+          e.invoke("Method check have not been call");
+        }else{
+          WritableMap map = new WritableNativeMap();
+          UiThreadUtil.runOnUiThread(() -> {
             ftd.validateUser(getCurrentActivity(), pin, new TrustedDeviceListener<ValidateStatus>() {
               @Override
               public void onSuccess(ValidateStatus o) {
@@ -262,17 +290,21 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
                 e.invoke(err.getMessage());
               }
             });
-        });
+          });
+        }
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
       }
     }
 
     @ReactMethod
     public void validateCrossDevice(int timeOut, Callback s, Callback e){
-      if(ftd==null){
-        e.invoke("Method check have not been call");
-      }else{
-        WritableMap map = new WritableNativeMap();
-        UiThreadUtil.runOnUiThread(() -> {
+      try{
+        if(ftd==null){
+          e.invoke("Method check have not been call");
+        }else{
+          WritableMap map = new WritableNativeMap();
+          UiThreadUtil.runOnUiThread(() -> {
             ftd.validateCrossDevice(getCurrentActivity(), timeOut, new CrossDeviceListener() {
               @Override
               public void onResponse(String device, boolean status) {
@@ -286,23 +318,30 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
                 e.invoke("Expired");
               }
             });
-        });
+          });
+        }
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
       }
     }
 
     @ReactMethod
     public void removeDevice(String pin, Callback s, Callback e){
-      Fazpass.removeDevice(mReactContext, pin, new TrustedDeviceListener<Boolean>() {
-        @Override
-        public void onSuccess(Boolean o) {
-          s.invoke(o);
-        }
+      try{
+        Fazpass.removeDevice(mReactContext, pin, new TrustedDeviceListener<Boolean>() {
+          @Override
+          public void onSuccess(Boolean o) {
+            s.invoke(o);
+          }
 
-        @Override
-        public void onFailure(Throwable err) {
-          e.invoke(err.getMessage());
-        }
-      });
+          @Override
+          public void onFailure(Throwable err) {
+            e.invoke(err.getMessage());
+          }
+        });
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
+      }
     }
 
     @ReactMethod
@@ -312,36 +351,42 @@ public class TrustedDeviceModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initializeCrossDeviceNonView(boolean isRequiredPin, Callback s, Callback e){
-      FazpassCd.initialize(getCurrentActivity(), isRequiredPin, (bundle) ->{
-        if(bundle!=null && bundle.getString("device")!=null){
-          s.invoke(bundle.getString("device"));
-        }else{
-          e.invoke("");
-        }
-        return null;
-      });
+      try{
+        FazpassCd.initialize(getCurrentActivity(), isRequiredPin, (bundle) ->{
+          if(bundle!=null && bundle.getString("device")!=null){
+            s.invoke(bundle.getString("device"));
+          }else{
+            e.invoke("");
+          }
+          return null;
+        });
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
+      }
     }
 
     @ReactMethod
     public void crossDeviceConfirmWithPin(String pin, Callback s){
-      if(_bundle!=null){
-        FazpassCd.onConfirmRequirePin(getCurrentActivity(), pin, (b)->{
-          s.invoke(Boolean.valueOf(b));
-          return null;
-        }, _bundle);
-      }else{
-        FazpassCd.onConfirmRequirePin(getCurrentActivity(), pin, (b)->{
-          s.invoke(Boolean.valueOf(b));
-          return null;
-        });
+      try{
+        if(_bundle!=null){
+          FazpassCd.onConfirmRequirePin(getCurrentActivity(), pin, (b)->{
+            s.invoke(Boolean.valueOf(b));
+            return null;
+          }, _bundle);
+        }else{
+          FazpassCd.onConfirmRequirePin(getCurrentActivity(), pin, (b)->{
+            s.invoke(Boolean.valueOf(b));
+            return null;
+          });
+        }
+      }catch (Exception ex){
+        sendErrorEvent(mReactContext, ex.getMessage());
       }
-
     }
 
   @ReactMethod
   public void crossDeviceConfirm(){
       if(_bundle!=null){
-        Log.d("Fazpass", _bundle.getString("device"));
         FazpassCd.onConfirm(getCurrentActivity(), _bundle);
       }else{
         FazpassCd.onConfirm(getCurrentActivity());

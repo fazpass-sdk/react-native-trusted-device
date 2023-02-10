@@ -26,8 +26,19 @@ export const Fazpass = NativeModules.TrustedDevice
 const tdEmitter = new NativeEventEmitter(Fazpass)
 var notificationListener:EmitterSubscription;
 var otpListener:EmitterSubscription;
+var errorListener:EmitterSubscription;
 
+export function streamNativeError(callback:Function){
+  errorListener = tdEmitter.addListener('error',(data)=>{
+  callback(data)
+  })
+}
 
+export function closeStreamNativeError(){
+  if(errorListener!=null){
+    errorListener.remove()
+  }
+}
 
 export async function requestPermission(){
   let permissions: Array<Permission> =
