@@ -108,7 +108,7 @@ dependencies {
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
-  implementation 'com.github.fazpass-sdk:trusted-device:1.0.0-react-native'
+  implementation 'com.github.fazpass-sdk:trusted-device:1.0.2-react-native'
 }
 
 if (isNewArchitectureEnabled()) {
